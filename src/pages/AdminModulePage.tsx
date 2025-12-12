@@ -337,6 +337,87 @@ export default function AdminModulePage() {
         }
     }
 
+    const handleMoveContent = async (contentId: string, direction: 'up' | 'down') => {
+        const content = contents.find(c => c.id === contentId)
+        if (!content) return
+
+        const unitContents = contents.filter(c => c.unit_id === content.unit_id)
+        const currentIndex = unitContents.findIndex(c => c.id === contentId)
+        if (currentIndex === -1) return
+
+        const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+        if (newIndex < 0 || newIndex >= unitContents.length) return
+
+        const reordered = [...unitContents]
+        const [movedItem] = reordered.splice(currentIndex, 1)
+        reordered.splice(newIndex, 0, movedItem)
+
+        const updates = reordered.map((c, index) => ({
+            id: c.id,
+            order_index: index + 1
+        }))
+
+        const newContentsState = contents.map(c => {
+            const update = updates.find(u => u.id === c.id)
+            return update ? { ...c, order_index: update.order_index } : c
+        })
+
+        newContentsState.sort((a, b) => {
+            if (a.unit_id !== b.unit_id) return 0
+            return a.order_index - b.order_index
+        })
+
+        setContents(newContentsState)
+
+        await Promise.all(updates.map(u =>
+            supabase.from("contents").update({ order_index: u.order_index }).eq("id", u.id)
+        ))
+
+        fetchModuleData()
+    }
+
+    const handleDeleteContent = async (contentId: string) => {
+        if (!confirm("¿Borrar esta lección?")) return
+        await supabase.from("contents").delete().eq("id", contentId)
+        fetchModuleData()
+    }
+
+    const resetContentForm = () => {
+        setContentTitle("")
+        setContentSlug("")
+        setContentBody("")
+        setSelectedIcon("BookOpen")
+        setPdfFile(null)
+        setQuizQuestions([{ q: "", options: ["", ""], correct: 0 }])
+        setIsFree(false)
+    }
+
+    const openContentDialog = (unitId: string, content?: Content) => {
+        setSelectedUnitId(unitId)
+        if (content) {
+            setEditingContentId(content.id)
+            setContentTitle(content.title)
+            setContentSlug(content.slug)
+            setContentBody(content.body || "")
+            setContentType(content.type)
+            setSelectedIcon(content.data?.icon || "BookOpen")
+            setIsFree(content.is_free)
+
+            if (content.type === 'quiz' && content.data?.questions) {
+                setQuizQuestions(content.data.questions)
+            } else {
+                setQuizQuestions([{ q: "", options: ["", ""], correct: 0 }])
+            }
+            setPdfFile(null)
+        } else {
+            setEditingContentId(null)
+            resetContentForm()
+        }
+        setIsContentDialogOpen(true)
+    }
+
+    if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>
+
     return (
         <div className="container py-8 pb-32">
             {/* DEBUG CONSOLE */}
