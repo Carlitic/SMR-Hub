@@ -4,8 +4,6 @@ Plataforma educativa interactiva para el Ciclo Formativo de **Sistemas Microinfo
 
 🌐 **Web Desplegada:** [https://smr-hub.pages.dev](https://smr-hub.pages.dev)
 
-![SMR-Hub Screenshot](https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop) *(Placeholder imagen)*
-
 ## 🚀 Acerca del Proyecto
 
 **SMR-Hub** es una aplicación web moderna diseñada para modernizar la enseñanza de informática. Permite a los estudiantes acceder a contenido estructurado, realizar tests interactivos y seguir su progreso en tiempo real.
@@ -40,14 +38,7 @@ Plataforma educativa interactiva para el Ciclo Formativo de **Sistemas Microinfo
     npm install
     ```
 
-3.  **Configurar variables de entorno**:
-    Crea un archivo `.env` en la raíz con tus claves de Supabase:
-    ```env
-    VITE_SUPABASE_URL=tu_url_de_supabase
-    VITE_SUPABASE_ANON_KEY=tu_clave_anonima
-    ```
-
-4.  **Ejecutar en desarrollo**:
+3.  **Ejecutar en desarrollo**:
     ```bash
     npm run dev
     ```
