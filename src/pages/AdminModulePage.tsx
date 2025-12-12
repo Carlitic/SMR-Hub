@@ -249,8 +249,15 @@ export default function AdminModulePage() {
         else fetchModuleData()
     }
 
+    // --- DEBUG LOGGING ---
+    const [debugLogs, setDebugLogs] = useState<string[]>([])
+    const addLog = (msg: string) => setDebugLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`])
+    // ---------------------
+
     const handleSaveContent = async () => {
+        addLog("Iniciando guardado...")
         if (!contentTitle || !selectedUnitId) {
+            addLog("Error validación: Falta título o unidad")
             alert("Error: Debes poner un título y asegurarte de que hay una Unidad seleccionada.")
             return
         }
@@ -259,15 +266,14 @@ export default function AdminModulePage() {
         let finalBody = contentBody
         let finalData: any = {}
 
-        // If editing, preserve existing data unless overwritten
         if (editingContentId) {
             const existing = contents.find(c => c.id === editingContentId)
             if (existing) finalData = existing.data || {}
         }
 
         try {
-            // 1. Handle PDF Upload
             if (pdfFile) {
+                addLog("Subiendo PDF...")
                 const fileExt = pdfFile.name.split('.').pop()
                 const fileName = `${Math.random()}.${fileExt}`
                 const filePath = `${id}/${fileName}`
@@ -279,153 +285,72 @@ export default function AdminModulePage() {
                         upsert: false
                     })
 
-                if (uploadError) throw uploadError
+                if (uploadError) {
+                    addLog("Error subida PDF: " + uploadError.message)
+                    throw uploadError
+                }
+                addLog("PDF Subido OK")
 
                 const { data: { publicUrl } } = supabase.storage.from('module_assets').getPublicUrl(filePath)
 
                 if (contentType === 'pdf') {
                     finalData = { ...finalData, url: publicUrl }
                 } else {
-                    // For lessons/activities, save as pdfUrl
                     finalData = { ...finalData, pdfUrl: publicUrl }
                 }
-            }
-
-            // 2. Handle Quiz Data
-            if (contentType === 'quiz') {
-                finalData = { questions: quizQuestions }
             }
 
             const payload = {
                 unit_id: selectedUnitId,
                 type: contentType,
                 body: finalBody,
-                data: { ...finalData, icon: selectedIcon }, // Include icon
+                data: { ...finalData, icon: selectedIcon },
                 is_free: isFree
             }
+            addLog("Guardando en DB: " + JSON.stringify(payload))
 
+            let error = null
             if (editingContentId) {
-                await supabase.from("contents").update(payload).eq("id", editingContentId)
+                const res = await supabase.from("contents").update(payload).eq("id", editingContentId)
+                error = res.error
             } else {
-                await supabase.from("contents").insert([{ ...payload, order_index: contents.length + 1 }])
+                const res = await supabase.from("contents").insert([{ ...payload, order_index: contents.length + 1 }])
+                error = res.error
             }
 
-            // Reset and Close
+            if (error) {
+                addLog("Error DB: " + error.message + " | Details: " + JSON.stringify(error))
+                throw error
+            }
+
+            addLog("Guardado DB OK. Recargando...")
             setIsContentDialogOpen(false)
             resetContentForm()
             fetchModuleData()
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving content:", error)
-            alert("Error al guardar contenido. Mira la consola.")
+            addLog("EXCEPTION: " + error.message)
+            alert("Error: " + error.message)
         } finally {
             setLoading(false)
         }
     }
 
-    const handleMoveContent = async (contentId: string, direction: 'up' | 'down') => {
-        const content = contents.find(c => c.id === contentId)
-        if (!content) return
-
-        // Get all contents for this unit, sorted by their CURRENT visual order (which maps to current contents state)
-        const unitContents = contents
-            .filter(c => c.unit_id === content.unit_id)
-        // Note: unitContents is already in the order displayed because 'contents' was sorted by fetch
-
-        const currentIndex = unitContents.findIndex(c => c.id === contentId)
-        if (currentIndex === -1) return
-
-        const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
-        if (newIndex < 0 || newIndex >= unitContents.length) return
-
-        // Create a new array with the move applied
-        const reordered = [...unitContents]
-        const [movedItem] = reordered.splice(currentIndex, 1)
-        reordered.splice(newIndex, 0, movedItem)
-
-        // Now update indices for ALL items in this unit to ensure consistency (1, 2, 3...)
-        const updates = reordered.map((c, index) => ({
-            id: c.id,
-            order_index: index + 1
-        }))
-
-        // Optimistic update
-        const newContentsState = contents.map(c => {
-            const update = updates.find(u => u.id === c.id)
-            return update ? { ...c, order_index: update.order_index } : c
-        })
-
-        // Re-sort the whole contents state so the UI updates immediately and correctly
-        // We need to preserve the relative order of other units, but sort the current unit
-        // Actually, easiest is to just update properties and let the render map logic handle it??
-        // The render logic: contents.filter(...).map(...)
-        // If we update order_index, we also need to ensure the 'contents' array ITSELF is sorted if we rely on it for stability later?
-        // Let's just update the state values and sort the state array to be sure.
-        newContentsState.sort((a, b) => {
-            // If different units, keep general order (not strictly needed but good for debugging)
-            if (a.unit_id !== b.unit_id) return 0
-            return a.order_index - b.order_index
-        })
-
-        setContents(newContentsState)
-
-        // Persist to DB
-        // We can do this in parallel
-        await Promise.all(updates.map(u =>
-            supabase.from("contents").update({ order_index: u.order_index }).eq("id", u.id)
-        ))
-
-        // Refetch to ensure everything is perfectly synced
-        fetchModuleData()
-    }
-
-    const handleDeleteContent = async (contentId: string) => {
-        if (!confirm("¿Borrar esta lección?")) return
-        await supabase.from("contents").delete().eq("id", contentId)
-        fetchModuleData()
-    }
-
-    const resetContentForm = () => {
-        setContentTitle("")
-        setContentSlug("")
-
-        setContentBody("")
-        setSelectedIcon("BookOpen")
-        setPdfFile(null)
-        setQuizQuestions([{ q: "", options: ["", ""], correct: 0 }])
-        setIsFree(false)
-    }
-
-    const openContentDialog = (unitId: string, content?: Content) => {
-        setSelectedUnitId(unitId)
-        if (content) {
-            setEditingContentId(content.id)
-            setContentTitle(content.title)
-            setContentSlug(content.slug)
-
-            setContentBody(content.body || "")
-            setContentType(content.type)
-            setSelectedIcon(content.data?.icon || "BookOpen")
-            setIsFree(content.is_free)
-
-            if (content.type === 'quiz' && content.data?.questions) {
-                setQuizQuestions(content.data.questions)
-            } else {
-                setQuizQuestions([{ q: "", options: ["", ""], correct: 0 }])
-            }
-            // PDF file input cannot be pre-filled programmatically for security
-            setPdfFile(null)
-        } else {
-            setEditingContentId(null)
-            resetContentForm()
-        }
-        setIsContentDialogOpen(true)
-    }
-
-    if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>
-
     return (
-        <div className="container py-8">
+        <div className="container py-8 pb-32">
+            {/* DEBUG CONSOLE */}
+            <div className="fixed bottom-0 left-0 w-full h-48 bg-black/90 text-green-400 font-mono text-xs p-4 overflow-y-auto z-50 border-t-2 border-green-500">
+                <div className="flex justify-between font-bold mb-2">
+                    <span>CONSOLE DEBUG SYSTEM (Captura este área si hay error)</span>
+                    <button onClick={() => setDebugLogs([])} className="text-white bg-red-600 px-2 rounded">Clear</button>
+                </div>
+                {debugLogs.length === 0 && <span className="opacity-50">Esperando acciones... (Intenta guardar para ver logs aquí)</span>}
+                {debugLogs.map((log, i) => (
+                    <div key={i} className="border-b border-green-900/30 py-0.5">{log}</div>
+                ))}
+            </div>
+
             <div className="flex items-center gap-4 mb-8">
                 <Button variant="ghost" onClick={() => navigate("/dashboard")}>
                     <ArrowLeft className="h-4 w-4 mr-2" /> Volver
