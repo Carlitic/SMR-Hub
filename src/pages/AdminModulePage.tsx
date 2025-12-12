@@ -100,6 +100,7 @@ export default function AdminModulePage() {
     const [contentSlug, setContentSlug] = useState("")
     const [contentBody, setContentBody] = useState("") // For Markdown
     const [pdfFile, setPdfFile] = useState<File | null>(null)
+    const [existingPdfUrl, setExistingPdfUrl] = useState<string | null>(null) // NEW STATE
 
     const [selectedIcon, setSelectedIcon] = useState("BookOpen")
 
@@ -390,6 +391,7 @@ export default function AdminModulePage() {
         setContentBody("")
         setSelectedIcon("BookOpen")
         setPdfFile(null)
+        setExistingPdfUrl(null) // RESET
         setQuizQuestions([{ q: "", options: ["", ""], correct: 0 }])
         setIsFree(false)
     }
@@ -405,11 +407,15 @@ export default function AdminModulePage() {
             setSelectedIcon(content.data?.icon || "BookOpen")
             setIsFree(content.is_free)
 
+            // LOAD EXISTING PDF
+            setExistingPdfUrl(content.data?.pdfUrl || content.data?.url || null)
+
             if (content.type === 'quiz' && content.data?.questions) {
                 setQuizQuestions(content.data.questions)
             } else {
                 setQuizQuestions([{ q: "", options: ["", ""], correct: 0 }])
             }
+            // PDF file input cannot be pre-filled programmatically for security
             setPdfFile(null)
         } else {
             setEditingContentId(null)
