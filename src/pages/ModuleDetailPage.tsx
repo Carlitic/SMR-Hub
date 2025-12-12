@@ -35,48 +35,64 @@ export default function ModuleDetailPage() {
     }, [id])
 
     const fetchModuleData = async (moduleId: string) => {
-        // 1. Get Module Info
-        const { data: moduleData } = await supabase.from("modules").select("title").eq("id", moduleId).single()
-        if (moduleData) setModuleTitle(moduleData.title)
+        setLoading(true)
+        try {
+            // 1. Get Module Info
+            const { data: moduleData } = await supabase.from("modules").select("title").eq("id", moduleId).single()
+            if (moduleData) setModuleTitle(moduleData.title)
 
-        // 2. Get Units and Contents
-        // Note: This requires a join. For simplicity, we fetch units then contents, 
-        // or use Supabase relational queries if setup. 
-        // Let's do a simple relational query assuming relations are detected, 
-        // OR just manual for robustness if relations aren't auto-detected.
+            // 2. Get Units
+            const { data: unitsData, error: unitsError } = await supabase
+                .from("units")
+                .select("id, title, order_index")
+                .eq("module_id", moduleId)
+                .order("order_index", { ascending: true })
 
-        // Attempt relational fetch
-        const { data, error } = await supabase
-            .from("units")
-            .select(`
-        id, 
-        title, 
-        contents (id, title, slug, is_free)
-      `)
-            .eq("module_id", moduleId)
-            .order("order_index", { ascending: true })
+            if (unitsError) throw unitsError
 
-        if (error) {
-            console.error("Error fetching units:", error)
-        } else {
-            // Safe cast or mapping if needed
-            setUnits(data as any || [])
-        }
-
-        // 3. Get User Progress
-        if (user) {
-            const { data: progressData } = await supabase
-                .from("user_progress")
-                .select("content_id")
-                .eq("user_id", user.id)
-
-            if (progressData) {
-                const ids = new Set(progressData.map(p => p.content_id))
-                setCompletedContentIds(ids)
+            if (!unitsData || unitsData.length === 0) {
+                setUnits([])
+                setLoading(false)
+                return
             }
-        }
 
-        setLoading(false)
+            // 3. Get Contents manually (Robust way)
+            const unitIds = unitsData.map(u => u.id)
+            const { data: contentsData, error: contentsError } = await supabase
+                .from("contents")
+                .select("id, title, slug, is_free, unit_id, order_index")
+                .in("unit_id", unitIds)
+                .order("order_index", { ascending: true })
+
+            if (contentsError) throw contentsError
+
+            // 4. Merge Units + Contents
+            const mergedUnits: Unit[] = unitsData.map(unit => ({
+                id: unit.id,
+                title: unit.title,
+                contents: contentsData?.filter(c => c.unit_id === unit.id) || []
+            }))
+
+            setUnits(mergedUnits)
+
+            // 5. Get User Progress
+            if (user) {
+                const { data: progressData } = await supabase
+                    .from("user_progress")
+                    .select("content_id")
+                    .eq("user_id", user.id)
+
+                if (progressData) {
+                    const ids = new Set(progressData.map(p => p.content_id))
+                    setCompletedContentIds(ids)
+                }
+            }
+
+        } catch (error) {
+            console.error("Error fetching module data:", error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const toggleProgress = async (e: React.MouseEvent, contentId: string) => {
