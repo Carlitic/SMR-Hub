@@ -636,6 +636,17 @@ export default function AdminModulePage() {
                                     />
                                     <div className="space-y-2 border-t pt-4 mt-4">
                                         <Label>Adjuntar PDF (Material de Apoyo)</Label>
+
+                                        {existingPdfUrl && (
+                                            <div className="flex items-center justify-between p-2 mb-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className="h-4 w-4 text-green-600" />
+                                                    <span className="text-xs text-green-700 dark:text-green-300 font-medium">Archivo actual adjunto</span>
+                                                </div>
+                                                <a href={existingPdfUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">Ver PDF</a>
+                                            </div>
+                                        )}
+
                                         <Input
                                             type="file"
                                             accept=".pdf"
@@ -685,6 +696,17 @@ export default function AdminModulePage() {
                                     />
                                     <div className="space-y-2 border-t pt-4 mt-4">
                                         <Label>Adjuntar Guía / PDF</Label>
+
+                                        {existingPdfUrl && (
+                                            <div className="flex items-center justify-between p-2 mb-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className="h-4 w-4 text-green-600" />
+                                                    <span className="text-xs text-green-700 dark:text-green-300 font-medium">Archivo actual adjunto</span>
+                                                </div>
+                                                <a href={existingPdfUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">Ver PDF</a>
+                                            </div>
+                                        )}
+
                                         <Input
                                             type="file"
                                             accept=".pdf"
