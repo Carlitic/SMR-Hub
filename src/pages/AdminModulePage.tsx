@@ -166,39 +166,46 @@ export default function AdminModulePage() {
         if (!id) return
         setLoading(true)
 
-        // 1. Get Module Info
-        const { data: moduleData } = await supabase.from("modules").select("title").eq("id", id).single()
-        if (moduleData) setModuleTitle(moduleData.title)
+        try {
+            // 1. Get Module Info
+            const { data: moduleData, error: moduleError } = await supabase.from("modules").select("title").eq("id", id).single()
+            if (moduleError) console.error("Error fetching module:", moduleError)
+            if (moduleData) setModuleTitle(moduleData.title)
 
-        // 2. Get Units
-        const { data: unitsData } = await supabase.from("units").select("*").eq("module_id", id).order("order_index", { ascending: true })
-        setUnits(unitsData || [])
+            // 2. Get Units
+            const { data: unitsData, error: unitsError } = await supabase.from("units").select("*").eq("module_id", id).order("order_index", { ascending: true })
+            if (unitsError) console.error("Error fetching units:", unitsError)
+            setUnits(unitsData || [])
 
-        // 3. Get Contents
-        // We get ALL contents for this module's units nicely flattened or we filter in memory
-        // A simple way is to fetch units first, then fetch contents where unit_id in (units ids)
-        // But for simplicity let's just fetch all contents related to these units
-        if (unitsData && unitsData.length > 0) {
-            const unitIds = unitsData.map(u => u.id)
-            const { data: contentsData } = await supabase
-                .from("contents")
-                .select("*")
-                .in("unit_id", unitIds)
+            // 3. Get Contents
+            if (unitsData && unitsData.length > 0) {
+                const unitIds = unitsData.map(u => u.id)
+                const { data: contentsData, error: contentsError } = await supabase
+                    .from("contents")
+                    .select("*")
+                    .in("unit_id", unitIds)
+                    .order("order_index", { ascending: true })
 
-                .order("order_index", { ascending: true })
+                if (contentsError) {
+                    console.error("Error fetching contents:", contentsError)
+                    alert("Error cargando contenidos: " + contentsError.message)
+                }
 
-            // Map data.icon to top level for easier access
-            const formattedContents = (contentsData || []).map((c: any) => ({
-                ...c,
-                icon: c.data?.icon || "BookOpen"
-            }))
+                // Map data.icon to top level for easier access
+                const formattedContents = (contentsData || []).map((c: any) => ({
+                    ...c,
+                    icon: c.data?.icon || "BookOpen"
+                }))
 
-            setContents(formattedContents)
-        } else {
-            setContents([])
+                setContents(formattedContents)
+            } else {
+                setContents([])
+            }
+        } catch (err) {
+            console.error("Unexpected error:", err)
+        } finally {
+            setLoading(false)
         }
-
-        setLoading(false)
     }
 
     const openUnitDialog = (unit?: Unit) => {
@@ -243,7 +250,10 @@ export default function AdminModulePage() {
     }
 
     const handleSaveContent = async () => {
-        if (!contentTitle || !selectedUnitId) return
+        if (!contentTitle || !selectedUnitId) {
+            alert("Error: Debes poner un título y asegurarte de que hay una Unidad seleccionada.")
+            return
+        }
         setLoading(true)
 
         let finalBody = contentBody
