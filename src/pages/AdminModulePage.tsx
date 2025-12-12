@@ -302,6 +302,8 @@ export default function AdminModulePage() {
 
             const payload = {
                 unit_id: selectedUnitId,
+                title: contentTitle, // FIXED: Added title
+                slug: contentSlug || contentTitle.toLowerCase().replace(/ /g, '-'), // FIXED: Added slug (auto-generate if empty)
                 type: contentType,
                 body: finalBody,
                 data: { ...finalData, icon: selectedIcon },
