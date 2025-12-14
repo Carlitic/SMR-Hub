@@ -37,6 +37,14 @@ export function QuizPlayer({ questions, onComplete }: QuizPlayerProps) {
     const [score, setScore] = useState(0)
     const [showResults, setShowResults] = useState(false)
 
+    if (!questions || questions.length === 0) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-muted-foreground">No hay preguntas disponibles en este test.</p>
+            </div>
+        )
+    }
+
     const handleCheck = () => {
         if (selectedAnswer === null) return
 

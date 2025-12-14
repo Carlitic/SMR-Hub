@@ -321,6 +321,10 @@ export default function AdminModulePage() {
                 }
             }
 
+            if (contentType === 'quiz') {
+                finalData = { ...finalData, questions: quizQuestions }
+            }
+
             const payload = {
                 unit_id: selectedUnitId,
                 title: contentTitle, // FIXED: Added title
