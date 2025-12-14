@@ -122,7 +122,7 @@ export default function ContentViewerPage() {
                 ...u,
                 contents: u.contents
                     .sort((a: any, b: any) => a.order_index - b.order_index)
-                    .map((c: any) => ({ ...c, icon: c.data?.icon }))
+                    .map((c: any) => ({ ...c, icon: c.data?.icon, unit_id: u.id }))
             }))
             setUnits(sortedUnits)
         }
