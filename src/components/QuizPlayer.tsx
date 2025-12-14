@@ -27,7 +27,7 @@ type Question = {
 
 interface QuizPlayerProps {
     questions: Question[]
-    onComplete: (score: number) => void
+    onComplete: (data: any) => void
 }
 
 export function QuizPlayer({ questions, onComplete }: QuizPlayerProps) {
@@ -60,7 +60,7 @@ export function QuizPlayer({ questions, onComplete }: QuizPlayerProps) {
             setIsAnswered(false)
         } else {
             setShowResults(true)
-            onComplete(score + (questions[currentQuestion].correct === selectedAnswer ? 1 : 0))
+            onComplete({ score: score + (questions[currentQuestion].correct === selectedAnswer ? 1 : 0), total: questions.length })
         }
     }
 

@@ -141,16 +141,48 @@ export default function ContentViewerPage() {
         setLoading(false)
     }
 
-    const handleMarkComplete = async (cid: string) => {
+    const handleMarkComplete = async (cid: string, scoreData?: { score: number, total: number }) => {
         if (!user) return
 
-        // Optimistic
+        let finalScore = null
+
+        // Validation for Quizzes
+        if (currentContent?.type === 'quiz' && scoreData) {
+            const grade = (scoreData.score / scoreData.total) * 10
+
+            if (grade < 5) {
+                alert(`Has sacado un ${grade.toFixed(1)}. Necesitas al menos un 5 para aprobar y completar la lección. ¡Inténtalo de nuevo!`)
+                return // Stop execution, do not mark as complete
+            }
+            finalScore = grade
+        }
+
+        // Optimistic update
         const newSet = new Set(completedIds)
         newSet.add(cid)
         setCompletedIds(newSet)
 
-        const { error } = await supabase.from("user_progress").insert([{ user_id: user.id, content_id: cid }])
-        if (error) console.log("Progress update skipped (duplicate or error)", error.message)
+        // Save to DB
+        const payload: any = { user_id: user.id, content_id: cid }
+        if (finalScore !== null) payload.score = finalScore
+
+        const { error } = await supabase.from("user_progress").insert([payload])
+
+        if (error) {
+            // Handle unique constraint violation (already completed) - we might want to update score if it's better?
+            // For now, if error implies duplicate, we try to update if it's a quiz and new score is higher
+            if (error.code === '23505') { // Unique violation
+                if (finalScore !== null) {
+                    // Start simplified: Just try to update score if they retook it and passed
+                    await supabase.from("user_progress")
+                        .update({ score: finalScore })
+                        .eq("user_id", user.id)
+                        .eq("content_id", cid)
+                }
+            } else {
+                console.log("Progress update error", error.message)
+            }
+        }
     }
 
     const navigateToNext = () => {
