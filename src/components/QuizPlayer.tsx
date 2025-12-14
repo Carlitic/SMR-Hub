@@ -73,20 +73,42 @@ export function QuizPlayer({ questions, onComplete }: QuizPlayerProps) {
     }
 
     if (showResults) {
-        const percentage = Math.round((score / questions.length) * 100)
+        const grade = (score / questions.length) * 10
+        const formattedGrade = grade % 1 === 0 ? grade.toFixed(0) : grade.toFixed(1) // 8 or 8.5
+
+        let message = "¡Buen trabajo!"
+        let color = "text-green-500"
+
+        if (grade < 5) {
+            message = "Necesitas repasar..."
+            color = "text-red-500"
+        } else if (grade >= 9) {
+            message = "¡Sobresaliente!"
+            color = "text-purple-500"
+        }
+
         return (
-            <Card className="max-w-xl mx-auto text-center py-8">
+            <Card className="max-w-xl mx-auto text-center py-8 animate-in zoom-in-50 duration-500">
                 <CardHeader>
-                    <CardTitle className="text-3xl">¡Test Completado!</CardTitle>
+                    <CardTitle className="text-3xl">Resultados del Test</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="text-6xl font-bold text-primary">{percentage}%</div>
-                    <p className="text-muted-foreground">
-                        Has acertado {score} de {questions.length} preguntas.
-                    </p>
+                <CardContent className="space-y-6">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                        <span className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Nota Final</span>
+                        <div className={`text-7xl font-black ${color}`}>
+                            {formattedGrade} <span className="text-2xl text-muted-foreground font-medium">/ 10</span>
+                        </div>
+                    </div>
+
+                    <div className="bg-muted/30 p-4 rounded-lg border">
+                        <p className="font-medium text-lg">{message}</p>
+                        <p className="text-muted-foreground text-sm mt-1">
+                            Has acertado <span className="font-bold text-foreground">{score}</span> de <span className="font-bold text-foreground">{questions.length}</span> preguntas.
+                        </p>
+                    </div>
                 </CardContent>
                 <CardFooter className="justify-center gap-4">
-                    <Button onClick={handleRetry} variant="outline">
+                    <Button onClick={handleRetry} className="w-full sm:w-auto">
                         <RotateCcw className="mr-2 h-4 w-4" /> Repetir Test
                     </Button>
                 </CardFooter>
