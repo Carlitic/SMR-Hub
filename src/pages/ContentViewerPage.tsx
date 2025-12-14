@@ -141,9 +141,24 @@ export default function ContentViewerPage() {
         setLoading(false)
     }
 
-    const handleMarkComplete = async (cid: string, scoreData?: { score: number, total: number }) => {
+    const handleToggleComplete = async (cid: string, scoreData?: { score: number, total: number }) => {
         if (!user) return
 
+        const isCompleted = completedIds.has(cid)
+
+        if (isCompleted) {
+            // UNMARK (Remove progress)
+            if (confirm("¿Quieres desmarcar esta lección como vista? Si tiene nota, se perderá.")) {
+                const newSet = new Set(completedIds)
+                newSet.delete(cid)
+                setCompletedIds(newSet)
+
+                await supabase.from("user_progress").delete().eq("user_id", user.id).eq("content_id", cid)
+            }
+            return
+        }
+
+        // MARK AS COMPLETE
         let finalScore = null
 
         // Validation for Quizzes
@@ -169,11 +184,8 @@ export default function ContentViewerPage() {
         const { error } = await supabase.from("user_progress").insert([payload])
 
         if (error) {
-            // Handle unique constraint violation (already completed) - we might want to update score if it's better?
-            // For now, if error implies duplicate, we try to update if it's a quiz and new score is higher
             if (error.code === '23505') { // Unique violation
                 if (finalScore !== null) {
-                    // Start simplified: Just try to update score if they retook it and passed
                     await supabase.from("user_progress")
                         .update({ score: finalScore })
                         .eq("user_id", user.id)
@@ -299,9 +311,21 @@ export default function ContentViewerPage() {
                                     <div>
                                         <h1 className="text-2xl font-bold">{currentContent.title}</h1>
                                     </div>
-                                    {!completedIds.has(currentContent.id) && user && (
-                                        <Button onClick={() => handleMarkComplete(currentContent.id)} className="md:w-auto w-full">
-                                            <CheckCircle className="mr-2 h-4 w-4" /> Marcar como Visto
+                                    {user && (
+                                        <Button
+                                            onClick={() => handleToggleComplete(currentContent.id)}
+                                            variant={completedIds.has(currentContent.id) ? "outline" : "default"}
+                                            className="md:w-auto w-full"
+                                        >
+                                            {completedIds.has(currentContent.id) ? (
+                                                <>
+                                                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> Completado (Desmarcar)
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CheckCircle className="mr-2 h-4 w-4" /> Marcar como Visto
+                                                </>
+                                            )}
                                         </Button>
                                     )}
                                 </div>
@@ -364,7 +388,7 @@ export default function ContentViewerPage() {
                                     {currentContent.type === 'quiz' && (
                                         <QuizPlayer
                                             questions={currentContent.data?.questions || []}
-                                            onComplete={() => handleMarkComplete(currentContent.id)}
+                                            onComplete={(scoreData) => handleToggleComplete(currentContent.id, scoreData)}
                                         />
                                     )}
                                 </div>
