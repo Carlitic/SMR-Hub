@@ -381,8 +381,31 @@ export default function AdminModulePage() {
 
     const handleDeleteContent = async (contentId: string) => {
         if (!confirm("¿Borrar esta lección?")) return
-        await supabase.from("contents").delete().eq("id", contentId)
-        fetchModuleData()
+
+        // 1. Check for file to delete
+        const content = contents.find(c => c.id === contentId)
+        if (content) {
+            const pdfUrl = content.data?.pdfUrl || content.data?.url
+            if (pdfUrl) {
+                try {
+                    // Extract path from URL: .../module_assets/moduleId/filename.pdf
+                    // The path needed for remove() is just "moduleId/filename.pdf"
+                    const urlObj = new URL(pdfUrl)
+                    const pathParts = urlObj.pathname.split('/module_assets/')
+                    if (pathParts.length > 1) {
+                        const filePath = pathParts[1] // "moduleId/filename.pdf"
+                        console.log("Deleting file from storage:", filePath)
+                        await supabase.storage.from('module_assets').remove([filePath])
+                    }
+                } catch (e) {
+                    console.error("Error parsing URL for file deletion:", e)
+                }
+            }
+        }
+
+        const { error } = await supabase.from("contents").delete().eq("id", contentId)
+        if (error) alert("Error borrando: " + error.message)
+        else fetchModuleData()
     }
 
     const resetContentForm = () => {
