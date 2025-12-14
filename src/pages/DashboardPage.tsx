@@ -130,7 +130,7 @@ export default function DashboardPage() {
 
     return (
         <div className="container py-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Panel de Administración</h1>
                     <p className="text-muted-foreground">Gestiona los módulos y contenidos de SMR-Hub.</p>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
                         }
                     }}>
                         <DialogTrigger asChild>
-                            <Button onClick={openNewDialog}>
+                            <Button onClick={openNewDialog} className="w-full md:w-auto">
                                 <Plus className="mr-2 h-4 w-4" /> Nuevo Módulo
                             </Button>
                         </DialogTrigger>
@@ -183,12 +183,12 @@ export default function DashboardPage() {
                 )}
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Módulo</TableHead>
-                            <TableHead>Descripción</TableHead>
+                            <TableHead className="hidden md:table-cell">Descripción</TableHead>
                             <TableHead className="w-[100px]">Acciones</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -204,15 +204,15 @@ export default function DashboardPage() {
                                 <TableRow key={module.id}>
                                     <TableCell className="font-medium">
                                         <div className="flex items-center">
-                                            <FolderOpen className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            {module.title}
+                                            <FolderOpen className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
+                                            <span className="truncate max-w-[150px] md:max-w-none">{module.title}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{module.description}</TableCell>
+                                    <TableCell className="hidden md:table-cell">{module.description}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Button variant="outline" size="sm" onClick={() => navigate(`/dashboard/module/${module.id}`)}>
-                                                Gestionar Contenido
+                                                <span className="hidden sm:inline">Gestionar</span> <span className="sm:hidden">Ver</span>
                                             </Button>
                                             <Button variant="ghost" size="icon" disabled={!isAdmin} onClick={() => openEditDialog(module)}>
                                                 <Pencil className="h-4 w-4" />

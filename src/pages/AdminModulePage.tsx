@@ -550,9 +550,9 @@ export default function AdminModulePage() {
                                 <p className="text-sm text-muted-foreground italic">No hay lecciones en este tema.</p>
                             )}
                             {contents.filter(c => c.unit_id === unit.id).map(content => (
-                                <div key={content.id} className="flex items-center justify-between p-2 rounded hover:bg-muted/50 group">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex flex-col gap-1 mr-2">
+                                <div key={content.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded hover:bg-muted/50 group gap-2">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        <div className="flex flex-col gap-1 mr-2 shrink-0">
                                             <button
                                                 onClick={() => handleMoveContent(content.id, 'up')}
                                                 className="hover:text-primary transition-colors disabled:opacity-30"
@@ -568,13 +568,13 @@ export default function AdminModulePage() {
                                                 <ArrowDown className="h-3 w-3" />
                                             </button>
                                         </div>
-                                        <div className={`p-1.5 rounded-md ${content.type === 'activity' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'}`}>
+                                        <div className={`p-1.5 rounded-md shrink-0 ${content.type === 'activity' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'}`}>
                                             {getIconComponent(content.data?.icon)}
                                         </div>
-                                        <span className="font-medium">{content.title}</span>
-                                        {content.is_free && <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-2 py-0.5 rounded-full">Gratis</span>}
+                                        <span className="font-medium truncate">{content.title}</span>
+                                        {content.is_free && <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-2 py-0.5 rounded-full shrink-0">Gratis</span>}
                                     </div>
-                                    <div className="opacity-0 group-hover:opacity-100 flex gap-1">
+                                    <div className="flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity justify-end">
                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openContentDialog(unit.id, content)}>
                                             <Edit className="h-3 w-3" />
                                         </Button>
