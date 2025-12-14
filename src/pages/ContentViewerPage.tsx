@@ -110,7 +110,7 @@ export default function ContentViewerPage() {
             .from("units")
             .select(`
                 id, title, alert_message,
-                contents (id, title, type, body, data, is_free, order_index)
+                contents (id, title, type, body, data, is_free, order_index, unit_id)
             `)
             .eq("module_id", moduleId)
             .order("order_index", { ascending: true })
