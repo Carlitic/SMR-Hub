@@ -41,6 +41,7 @@ export default function ModuleDetailPage() {
     const [units, setUnits] = useState<Unit[]>([])
     const [moduleTitle, setModuleTitle] = useState("")
     const [completedContentIds, setCompletedContentIds] = useState<Set<string>>(new Set())
+    const [contentScores, setContentScores] = useState<Map<string, number>>(new Map())
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -92,12 +93,19 @@ export default function ModuleDetailPage() {
             if (user) {
                 const { data: progressData } = await supabase
                     .from("user_progress")
-                    .select("content_id")
+                    .select("content_id, score")
                     .eq("user_id", user.id)
 
                 if (progressData) {
                     const ids = new Set(progressData.map(p => p.content_id))
                     setCompletedContentIds(ids)
+
+                    // Create a map of contentId -> score
+                    const scoresMap = new Map()
+                    progressData.forEach(p => {
+                        if (p.score !== null) scoresMap.set(p.content_id, p.score)
+                    })
+                    setContentScores(scoresMap)
                 }
             }
 
@@ -180,9 +188,16 @@ export default function ModuleDetailPage() {
                                             )}
 
                                             <FileText className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
-                                            <span className={cn("font-medium", completedContentIds.has(content.id) && "text-muted-foreground line-through decoration-green-500/50")}>
-                                                {content.title}
-                                            </span>
+                                            <div className="flex flex-col">
+                                                <span className={cn("font-medium", completedContentIds.has(content.id) && "text-muted-foreground line-through decoration-green-500/50")}>
+                                                    {content.title}
+                                                </span>
+                                                {contentScores.get(content.id) !== undefined && (
+                                                    <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded w-fit mt-1">
+                                                        Nota: {contentScores.get(content.id)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         {!user && !content.is_free ? (
                                             <Lock className="h-4 w-4 text-destructive" />
