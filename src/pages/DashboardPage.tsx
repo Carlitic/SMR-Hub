@@ -1,3 +1,16 @@
+/**
+ * DashboardPage.tsx
+ * 
+ * PROPÓSITO:
+ * Es el panel de control PRINCIPAL para el usuario logueado.
+ * 
+ * FUNCIONALIDAD:
+ * 1. Lista todos los módulos (asignaturas) disponibles.
+ * 2. Si eres ADMIN: Muestra botones para Crear, Editar y Borrar módulos.
+ * 3. Si eres ADMIN: El botón "Gestionar Contenido" te lleva a AdminModulePage para editar lecciones.
+ * 4. Si NO eres admin: Solo ves la lista y el aviso de que estás en modo lectura.
+ */
+
 import { useEffect, useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { supabase } from "@/lib/supabase"

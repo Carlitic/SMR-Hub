@@ -1,3 +1,19 @@
+/**
+ * ContentViewerPage.tsx
+ * 
+ * PROPÓSITO:
+ * Es el "Visor" que ven los alumnos. Muestra el contenido de una lección específica.
+ * Tiene una barra lateral (Sidebar) con el índice de todo el módulo.
+ * 
+ * ¿QUÉ HACE?:
+ * 1. fetchCourseData: Carga todo el temario (unidades y lecciones) para pintar el índice.
+ * 2. Renderiza el contenido según el tipo:
+ *    - 'lesson' / 'activity': Usa ReactMarkdown para convertir el texto a HTML bonito.
+ *    - 'pdf': Usa el componente PDFSlides (ahora un iframe) para mostrar el documento.
+ *    - 'quiz': Carga el QuizPlayer para hacer el test.
+ * 3. Gestiona el progreso (marcar como visto al terminar).
+ */
+
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"

@@ -1,3 +1,16 @@
+/**
+ * LoginPage.tsx
+ * 
+ * PROPÓSITO:
+ * Pantalla de Acceso y Registro (todo en uno).
+ * 
+ * FUNCIONAMIENTO:
+ * - Detecta el modo (Login o Registro) por la URL o el estado.
+ * - Usa supabase.auth.signInWithPassword para entrar.
+ * - Usa supabase.auth.signUp para registrarse.
+ * - Tiene animaciones chulas con Framer Motion para cambiar de modo.
+ */
+
 import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"

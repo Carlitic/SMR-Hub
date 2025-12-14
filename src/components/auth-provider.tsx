@@ -1,3 +1,15 @@
+/**
+ * auth-provider.tsx
+ * 
+ * PROPÓSITO:
+ * Es el "cerebro" que sabe quién está conectado. Envuelve a toda la app.
+ * Proveé el contexto de autenticación (usuario actual, sesión, función de cerrar sesión) a cualquier componente que lo pida.
+ * 
+ * ¿CÓMO SE USA?:
+ * En cualquier archivo: import { useAuth } from "@/components/auth-provider"
+ * const { user } = useAuth() -> Y ya tienes el usuario.
+ */
+
 import { createContext, useContext, useEffect, useState } from "react"
 import { type User, type Session } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"

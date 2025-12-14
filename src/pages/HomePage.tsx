@@ -1,3 +1,18 @@
+/**
+ * HomePage.tsx
+ * 
+ * PROPÓSITO:
+ * Página de aterrizaje (Landing Page) que ve todo el mundo al entrar.
+ * 
+ * CONTENIDO:
+ * - Sección Hero: Título grande, botones de llamada a la acción.
+ * - Grid de Módulos (Cards): Resumen visual de las asignaturas.
+ * - Sección "Por qué elegirnos": Marketing.
+ * 
+ * ESTILO:
+ * Usa muchas clases de Tailwind para diseño responsivo y efectos visuales (fondos, gradientes).
+ */
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Shield, Server, Cpu, Wifi, BookOpen, Terminal, CheckCircle2 } from "lucide-react"

@@ -1,3 +1,16 @@
+/**
+ * ModuleDetailPage.tsx
+ * 
+ * PROPÓSITO:
+ * Es la portada de un Módulo (ej. "Seguridad Informática").
+ * Muestra la lista completa de Unidades y Lecciones para que el alumno elija por dónde empezar.
+ * 
+ * LÓGICA IMPORTANTE:
+ * - fetchModuleData: Hace una consulta "manual" (más segura) a Supabase para traer Unidades y luego sus Contenidos.
+ * - Calcula el % de progreso del alumno (cuántas lecciones ha completado del total).
+ * - Botón "Continuar": Te lleva a la última lección que dejaste a medias.
+ */
+
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useAuth } from "@/components/auth-provider"

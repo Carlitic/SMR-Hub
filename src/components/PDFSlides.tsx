@@ -1,3 +1,15 @@
+/**
+ * PDFSlides.tsx
+ * 
+ * PROPÓSITO:
+ * Componente simple para visualizar archivos PDF dentro de la web.
+ * 
+ * CAMBIO IMPORTANTE:
+ * Antes usaba una librería compleja (react-pdf). AHORA usa un simple <iframe> nativo del navegador.
+ * Esto es mucho más fiable, carga más rápido y da menos errores de seguridad.
+ * También incluye botones para descargar el archivo o abrirlo en una ventana nueva por si falla la vista integrada.
+ */
+
 import { Button } from "@/components/ui/button";
 import { Download, ExternalLink } from "lucide-react";
 

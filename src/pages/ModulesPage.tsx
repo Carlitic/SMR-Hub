@@ -1,3 +1,12 @@
+/**
+ * ModulesPage.tsx
+ * 
+ * PROPÓSITO:
+ * Página pública que muestra las tarjetas de los módulos. 
+ * Es accesible sin login (aunque para entrar, te pedirá cuenta luego).
+ * Sirve como catálogo visual de lo que ofrece la plataforma.
+ */
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"

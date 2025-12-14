@@ -1,3 +1,23 @@
+/**
+ * AdminModulePage.tsx
+ * 
+ * PROPÓSITO:
+ * Esta es la página PRINCIPAL de administración del contenido.
+ * Aquí es donde el administrador (tú) puede:
+ * 1. Crear y editar "Unidades" (Temas).
+ * 2. Crear y editar "Contenidos" (Lecciones, Actividades, PDFs, Tests).
+ * 3. Subir archivos PDF a Supabase Storage.
+ * 4. Reordenar el contenido.
+ * 
+ * FUNCIONES CLAVE:
+ * - handleSaveContent: La más importante. Guarda la lección en la base de datos y sube el PDF si hay uno.
+ * - handleDeleteContent: Borra la lección y, si tiene PDF (y el código está activo), borra también el archivo para no dejar basura.
+ * - openContentDialog: Abre el formulario para editar o crear. Carga el PDF existente si lo hay.
+ * 
+ * NOTA:
+ * Tiene una "Consola de Depuración" visual abajo del todo para ver errores si algo falla.
+ */
+
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useAuth } from "@/components/auth-provider"

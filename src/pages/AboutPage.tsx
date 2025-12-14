@@ -1,3 +1,12 @@
+/**
+ * AboutPage.tsx
+ * 
+ * PROPÓSITO:
+ * Página estática de "Acerca de".
+ * Explica qué es el proyecto, quién lo ha hecho y tecnologías usadas.
+ * Puramente informativa.
+ */
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { GraduationCap, Server } from "lucide-react"

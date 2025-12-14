@@ -1,4 +1,18 @@
 
+/**
+ * App.tsx
+ * 
+ * PROPÓSITO:
+ * Archivo raíz de navegación. Aquí se definen las RUTAS (URLs) de la web.
+ * Ej: Si quieres crear una página nueva "/contacto", tienes que añadirla aquí en <Routes>.
+ * 
+ * ESTRUCTURA:
+ * Envuelve todo en:
+ * 1. ThemeProvider (Modo oscuro/claro).
+ * 2. AuthProvider (Gestión de usuario).
+ * 3. BrowserRouter (Navegación sin recargar).
+ */
+
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"

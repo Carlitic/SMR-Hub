@@ -1,3 +1,19 @@
+/**
+ * layout.tsx
+ * 
+ * PROPÓSITO:
+ * Define la ESTRUCTURA BASE que tienen todas las páginas.
+ * 
+ * COMPONENTES:
+ * 1. <header>: La barra de arriba con el logo, menú y botón de login/perfil.
+ * 2. <main>: El contenido variable (lo que cambia según la página donde estés).
+ * 3. <footer>: El pie de página con los créditos.
+ * 
+ * EXTRAS:
+ * - Renderiza <Outlet />, que es donde React Router inyecta la página actual.
+ * - Incluye animaciones suaves (AnimatePresence) al cambiar de página.
+ */
+
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"

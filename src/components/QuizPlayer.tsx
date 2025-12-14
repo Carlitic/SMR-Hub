@@ -1,3 +1,16 @@
+/**
+ * QuizPlayer.tsx
+ * 
+ * PROPÓSITO:
+ * Motor para realizar los exámenes tipo test dentro de la aplicación.
+ * 
+ * FUNCIONAMIENTO:
+ * - Recibe una lista de preguntas (questions) donde cada una tiene opciones y el índice de la correcta.
+ * - Muestra una pregunta a la vez.
+ * - Permite seleccionar respuesta, comprobar si está bien (feedback inmediato) y pasar a la siguiente.
+ * - Al final muestra una pantalla de resumen con la nota.
+ */
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
