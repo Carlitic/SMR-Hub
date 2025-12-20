@@ -2,7 +2,7 @@
 
 Plataforma educativa interactiva para el Ciclo Formativo de **Sistemas Microinformáticos y Redes (SMR)**.
 
-🌐 **Web Desplegada:** [https://smr-hub.pages.dev](https://smr-hub.pages.dev)
+🌐 **Web Desplegada:** [https://carlitic.github.io/SMR-Hub/](https://carlitic.github.io/SMR-Hub/)
 
 ## 🚀 Acerca del Proyecto
 
