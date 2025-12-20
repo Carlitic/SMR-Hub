@@ -30,7 +30,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/SMR-Hub/">
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
