@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
-import { Plus, Pencil, Trash2, FolderOpen, Loader2, Eye, EyeOff } from "lucide-react"
+import { Plus, Pencil, Trash2, FolderOpen, Loader2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 type Module = {
@@ -100,7 +100,7 @@ export default function DashboardPage() {
             if (error) console.error("Error creating:", error)
         }
 
-        setNewModule({ title: "", description: "" })
+        setNewModule({ title: "", description: "", published: true })
         setEditingModule(null)
         setIsDialogOpen(false)
         fetchModules()
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                         setIsDialogOpen(open)
                         if (!open) {
                             setEditingModule(null)
-                            setNewModule({ title: "", description: "" })
+                            setNewModule({ title: "", description: "", published: true })
                         }
                     }}>
                         <DialogTrigger asChild>
