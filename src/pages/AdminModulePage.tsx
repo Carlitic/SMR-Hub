@@ -787,15 +787,29 @@ export default function AdminModulePage() {
                                 </div>
                                 {quizQuestions.map((q, qIndex) => (
                                     <div key={qIndex} className="border p-4 rounded bg-muted/20 space-y-3">
-                                        <Input
-                                            placeholder={`Pregunta ${qIndex + 1}`}
-                                            value={q.q}
-                                            onChange={e => {
-                                                const newQ = [...quizQuestions];
-                                                newQ[qIndex].q = e.target.value;
-                                                setQuizQuestions(newQ);
-                                            }}
-                                        />
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                placeholder={`Pregunta ${qIndex + 1}`}
+                                                value={q.q}
+                                                onChange={e => {
+                                                    const newQ = [...quizQuestions];
+                                                    newQ[qIndex].q = e.target.value;
+                                                    setQuizQuestions(newQ);
+                                                }}
+                                            />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-destructive shrink-0"
+                                                onClick={() => {
+                                                    const newQ = [...quizQuestions];
+                                                    newQ.splice(qIndex, 1);
+                                                    setQuizQuestions(newQ);
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                         <div className="pl-4 space-y-2">
                                             {q.options.map((opt, oIndex) => (
                                                 <div key={oIndex} className="flex gap-2 items-center">
