@@ -20,13 +20,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Pencil, Trash2, FolderOpen, Loader2 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Plus, Pencil, Trash2, FolderOpen, Loader2, Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 type Module = {
     id: string
     title: string
     description: string
+    published: boolean
     created_at: string
 }
 
@@ -37,7 +39,7 @@ export default function DashboardPage() {
     const [isAdmin, setIsAdmin] = useState(false)
     const [loading, setLoading] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [newModule, setNewModule] = useState({ title: "", description: "" })
+    const [newModule, setNewModule] = useState({ title: "", description: "", published: true })
     const [editingModule, setEditingModule] = useState<Module | null>(null)
 
     useEffect(() => {
@@ -85,7 +87,7 @@ export default function DashboardPage() {
             // Update existing
             const { error } = await supabase
                 .from("modules")
-                .update({ title: newModule.title, description: newModule.description })
+                .update({ title: newModule.title, description: newModule.description, published: newModule.published })
                 .eq("id", editingModule.id)
 
             if (error) console.error("Error updating:", error)
@@ -93,7 +95,7 @@ export default function DashboardPage() {
             // Create new
             const { error } = await supabase
                 .from("modules")
-                .insert([{ title: newModule.title, description: newModule.description }])
+                .insert([{ title: newModule.title, description: newModule.description, published: newModule.published }])
 
             if (error) console.error("Error creating:", error)
         }
@@ -114,13 +116,13 @@ export default function DashboardPage() {
 
     const openEditDialog = (module: Module) => {
         setEditingModule(module)
-        setNewModule({ title: module.title, description: module.description })
+        setNewModule({ title: module.title, description: module.description, published: module.published })
         setIsDialogOpen(true)
     }
 
     const openNewDialog = () => {
         setEditingModule(null)
-        setNewModule({ title: "", description: "" })
+        setNewModule({ title: "", description: "", published: true })
         setIsDialogOpen(true)
     }
 
@@ -174,6 +176,14 @@ export default function DashboardPage() {
                                         placeholder="Breve descripción de la asignatura..."
                                     />
                                 </div>
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Switch
+                                        id="published"
+                                        checked={newModule.published}
+                                        onCheckedChange={(checked) => setNewModule({ ...newModule, published: checked })}
+                                    />
+                                    <Label htmlFor="published">Visible para alumnos</Label>
+                                </div>
                             </div>
                             <DialogFooter>
                                 <Button onClick={handleSaveModule}>{editingModule ? "Guardar Cambios" : "Crear Módulo"}</Button>
@@ -206,6 +216,11 @@ export default function DashboardPage() {
                                         <div className="flex items-center">
                                             <FolderOpen className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
                                             <span className="truncate max-w-[150px] md:max-w-none">{module.title}</span>
+                                            {!module.published && (
+                                                <span className="ml-2 px-1.5 py-0.5 text-[10px] uppercase font-bold bg-yellow-100 text-yellow-700 rounded border border-yellow-200">
+                                                    Oculto
+                                                </span>
+                                            )}
                                         </div>
                                     </TableCell>
                                     <TableCell className="hidden md:table-cell">{module.description}</TableCell>

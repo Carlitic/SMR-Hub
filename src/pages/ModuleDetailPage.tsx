@@ -46,14 +46,30 @@ export default function ModuleDetailPage() {
 
     useEffect(() => {
         if (id) fetchModuleData(id)
-    }, [id])
+    }, [id, user]) // Added user dependency
 
     const fetchModuleData = async (moduleId: string) => {
         setLoading(true)
         try {
+            // Check Admin Status first
+            let isAdmin = false
+            if (user) {
+                const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+                if (profile?.role === "admin") isAdmin = true
+            }
+
             // 1. Get Module Info
-            const { data: moduleData } = await supabase.from("modules").select("title").eq("id", moduleId).single()
-            if (moduleData) setModuleTitle(moduleData.title)
+            const { data: moduleData } = await supabase.from("modules").select("title, published").eq("id", moduleId).single()
+
+            if (moduleData) {
+                // SECURITY CHECK: If not published and not admin, redirect
+                if (!moduleData.published && !isAdmin) {
+                    alert("🚧 Este módulo está en mantenimiento o en preparación.\n\nPróximamente estará disponible.")
+                    navigate("/modulos")
+                    return
+                }
+                setModuleTitle(moduleData.title)
+            }
 
             // 2. Get Units
             const { data: unitsData, error: unitsError } = await supabase

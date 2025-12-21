@@ -20,6 +20,7 @@ type Module = {
     id: string
     title: string
     description: string
+    published: boolean
     created_at: string
 }
 
@@ -35,8 +36,15 @@ export default function ModulesPage() {
     const [modules, setModules] = useState<Module[]>([])
     const [progressMap, setProgressMap] = useState<Record<string, number>>({})
     const [loading, setLoading] = useState(true)
+    const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
+        const checkAdmin = async () => {
+            if (!user) return
+            const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+            if (data?.role === "admin") setIsAdmin(true)
+        }
+        checkAdmin()
         fetchModules()
     }, [user])
 
@@ -92,7 +100,25 @@ export default function ModulesPage() {
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {modules.map((module) => (
-                        <Card key={module.id} className="flex flex-col hover:shadow-lg transition-shadow">
+                        <Card key={module.id} className={`flex flex-col hover:shadow-lg transition-shadow relative overflow-hidden ${!module.published && !isAdmin ? "opacity-75" : ""}`}>
+
+                            {/* OVERLAY FOR COMING SOON */}
+                            {!module.published && !isAdmin && (
+                                <div className="absolute inset-0 bg-background/60 backdrop-blur-[1px] z-20 flex flex-col items-center justify-center text-center p-4">
+                                    <div className="bg-primary/10 text-primary border border-primary/20 rounded-lg p-4 shadow-lg transform rotate-[-5deg]">
+                                        <h3 className="text-2xl font-black uppercase tracking-widest">Próximamente</h3>
+                                        <p className="text-sm font-medium mt-1">Estamos preparando este contenido</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ADMIN VISIBILITY BADGE */}
+                            {!module.published && isAdmin && (
+                                <div className="absolute top-2 right-2 z-30 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold border border-yellow-300">
+                                    OCULTO A ALUMNOS
+                                </div>
+                            )}
+
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <BookOpen className="h-5 w-5 text-primary" />
@@ -114,8 +140,8 @@ export default function ModulesPage() {
                                 )}
                             </CardContent>
                             <CardFooter>
-                                <Button className="w-full" onClick={() => navigate(`/modulos/${module.id}/viewer`)}>
-                                    Entrar al Curso
+                                <Button className="w-full" onClick={() => navigate(`/modulos/${module.id}/viewer`)} disabled={!module.published && !isAdmin}>
+                                    {!module.published && !isAdmin ? "No Disponible" : "Entrar al Curso"}
                                 </Button>
                             </CardFooter>
                         </Card>
