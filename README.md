@@ -22,7 +22,7 @@ Plataforma educativa interactiva para el Ciclo Formativo de **Sistemas Microinfo
 *   **Frontend**: React + TypeScript + Vite
 *   **Estilos**: Tailwind CSS + Shadcn/UI
 *   **Base de Datos y Auth**: Supabase
-*   **Despliegue**: Cloudflare Pages
+*   **Despliegue**: Github Pages
 *   **Animaciones**: Framer Motion
 
 ## 📦 Instalación Local
